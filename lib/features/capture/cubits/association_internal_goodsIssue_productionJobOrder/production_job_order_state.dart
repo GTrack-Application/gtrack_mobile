@@ -75,7 +75,7 @@ class ProductionJobOrderUpdateMappedBarcodesLoading
 class ProductionJobOrderUpdateMappedBarcodesLoaded
     extends ProductionJobOrderState {
   final String message;
-  final int updatedCount;
+  final num updatedCount;
 
   ProductionJobOrderUpdateMappedBarcodesLoaded({
     required this.message,

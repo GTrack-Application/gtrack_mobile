@@ -4,7 +4,7 @@ import 'package:gtrack_nartec/global/common/colors/app_colors.dart';
 import 'package:gtrack_nartec/global/common/utils/app_navigator.dart';
 import 'package:gtrack_nartec/global/widgets/buttons/card_icon_button.dart';
 import 'package:gtrack_nartec/screens/home/capture/Association/Shipping/job_order/shipping_job_order_screen.dart';
-import 'package:gtrack_nartec/screens/home/capture/Association/Shipping/sales_order_new/sales_order_screen.dart';
+import 'package:gtrack_nartec/features/capture/association/shipping/views/sales_order_screen.dart';
 
 class ShippingScreen extends StatefulWidget {
   const ShippingScreen({super.key});

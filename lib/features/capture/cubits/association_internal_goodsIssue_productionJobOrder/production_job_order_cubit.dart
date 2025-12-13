@@ -39,7 +39,7 @@ class ProductionJobOrderCubit extends Cubit<ProductionJobOrderState> {
   List<BinLocation> binLocations = [];
   VehicleModel? selectedVehicle;
   BinLocation? selectedBinLocation;
-  int quantityPicked = 0;
+  num quantityPicked = 0;
   String? selectedGLN;
 
   // Maps
@@ -368,7 +368,7 @@ class ProductionJobOrderCubit extends Cubit<ProductionJobOrderState> {
   void updateMappedBarcodes(
     String location, {
     ProductionJobOrder? oldOrder,
-    int? qty,
+    num? qty,
     String? gln,
   }) async {
     emit(ProductionJobOrderUpdateMappedBarcodesLoading());
@@ -702,32 +702,23 @@ class ProductionJobOrderCubit extends Cubit<ProductionJobOrderState> {
   void updateMappedBarcodesByVehicle(
     String location,
     List<MappedBarcode> scannedItems, {
-    int? qty,
+    num? qty,
   }) async {
     emit(ProductionJobOrderUpdateMappedBarcodesLoading());
 
     try {
-      final itemIds = scannedItems.map((item) => item.id).toList();
+      // final itemIds = scannedItems.map((item) => item.id).toList();
 
-      final response = await _httpService.request(
-        "/api/mappedBarcodes/updateBinLocationForMappedBarcodes",
-        method: HttpMethod.put,
-        payload: {
-          'ids': itemIds,
-          'newBinLocation': location,
-        },
-      );
+      // final response = await _httpService.request(
+      //   "/api/mappedBarcodes/updateBinLocationForMappedBarcodes",
+      //   method: HttpMethod.put,
+      //   payload: {
+      //     'ids': itemIds,
+      //     'newBinLocation': location,
+      //   },
+      // );
 
       await Future.any([
-        // EPCIS API Call
-        // EPCISController.insertEPCISEvent(
-        //   type: "Transaction Event",
-        //   action: "ADD",
-        //   bizStep: "shipping",
-        //   disposition: "in_transit",
-        //   gln: selectedVehicle?.glnIdNumber,
-        // ),
-
         EPCISController.insertNewEPCISEvent(
           eventType: "TransactionEvent",
           latitude: selectedBinLocation?.latitude?.toString(),
@@ -743,22 +734,17 @@ class ProductionJobOrderCubit extends Cubit<ProductionJobOrderState> {
             'quantityPicked': qty,
             'vehicleId': selectedVehicle?.id.toString(),
           },
-        ).catchError((error) {
-          throw Exception(error.data['message'] ??
-              error.data['error'] ??
-              'Failed to update mapped barcodes');
-        }),
-      ]);
+        ),
+      ]).catchError((error) {
+        throw Exception(error.data['message'] ??
+            error.data['error'] ??
+            'Failed to update mapped barcodes');
+      });
 
-      if (response.success) {
-        final data = response.data;
-        emit(ProductionJobOrderUpdateMappedBarcodesLoaded(
-          message: data['message'],
-          updatedCount: data['updatedCount'],
-        ));
-      } else {
-        throw Exception('Failed to update mapped barcodes');
-      }
+      emit(ProductionJobOrderUpdateMappedBarcodesLoaded(
+        message: "Data updated successfully",
+        updatedCount: qty ?? scannedItems.length,
+      ));
     } catch (e) {
       emit(ProductionJobOrderUpdateMappedBarcodesError(message: e.toString()));
     }

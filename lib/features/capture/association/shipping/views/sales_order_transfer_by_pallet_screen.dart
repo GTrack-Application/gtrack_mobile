@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gtrack_nartec/features/capture/association/shipping/views/sales_order_screen.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_cubit.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_state.dart';
 import 'package:gtrack_nartec/global/common/colors/app_colors.dart';
 import 'package:gtrack_nartec/global/common/utils/app_navigator.dart';
 import 'package:gtrack_nartec/global/common/utils/app_snakbars.dart';
 import 'package:gtrack_nartec/global/widgets/buttons/primary_button.dart';
-import 'package:gtrack_nartec/screens/home_screen.dart';
 
-class PickItemsScreen extends StatefulWidget {
-  const PickItemsScreen({super.key});
+class SalesOrderTransferByPalletScreen extends StatefulWidget {
+  const SalesOrderTransferByPalletScreen({super.key});
 
   @override
-  State<PickItemsScreen> createState() => _PickItemsScreenState();
+  State<SalesOrderTransferByPalletScreen> createState() =>
+      _SalesOrderTransferByPalletScreenState();
 }
 
-class _PickItemsScreenState extends State<PickItemsScreen> {
+class _SalesOrderTransferByPalletScreenState
+    extends State<SalesOrderTransferByPalletScreen> {
   final cubit = ProductionJobOrderCubit();
   final locationController = TextEditingController();
   final palletController = TextEditingController();
@@ -28,7 +30,7 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
     setState(() {
       cubit.quantityPicked = context
               .read<ProductionJobOrderCubit>()
-              .jobOrderDetail
+              .selectedSubSalesOrder
               ?.quantityPicked ??
           0;
     });
@@ -36,8 +38,11 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bom = context.watch<ProductionJobOrderCubit>().jobOrderDetail;
-    cubit.jobOrderDetail = bom;
+    final qty = context
+            .read<ProductionJobOrderCubit>()
+            .selectedSubSalesOrder
+            ?.quantity ??
+        0;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +72,7 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildInfoRow('Quantity:', '${bom?.quantity ?? 0}'),
+                    _buildInfoRow('Quantity:', '$qty'),
                     _buildInfoRow(
                         'Picked Quantity:', '${cubit.quantityPicked}'),
                   ],
@@ -130,7 +135,7 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
                 ),
 
                 // Save button
-                _buildSaveButton(),
+                buildSaveButton(),
               ],
             );
           },
@@ -183,16 +188,21 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
 
   ///
 
-  /// Builds the save button with validation logic
-  Widget _buildSaveButton() {
+  BlocConsumer<ProductionJobOrderCubit, ProductionJobOrderState>
+      buildSaveButton() {
     return BlocConsumer<ProductionJobOrderCubit, ProductionJobOrderState>(
       bloc: cubit,
       listener: (context, state) {
         if (state is ProductionJobOrderUpdateMappedBarcodesLoaded) {
           AppSnackbars.success(context, state.message);
-          AppNavigator.pushAndRemoveUntil(
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+          AppNavigator.replaceTo(
             context: context,
-            screen: const HomeScreen(),
+            screen: SalesOrderScreen(),
           );
         }
       },
@@ -202,28 +212,82 @@ class _PickItemsScreenState extends State<PickItemsScreen> {
         return PrimaryButtonWidget(
           text: "Save",
           backgroundColor: AppColors.pink,
-          height: 36,
           onPressed: () {
-            if (locationController.text.isEmpty) {
-              AppSnackbars.normal(
-                  context, "Please Enter WIP Location in order to proceed");
-              return;
+            if (cubit.selectedpackagingScanResults.isEmpty) {
+              // Show warning dialog when no items scanned
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded, color: Colors.amber),
+                        SizedBox(width: 10),
+                        Text(
+                          'No Items Scanned',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    content: Text(
+                      'You haven\'t scanned any items yet. Are you sure you want to proceed without scanning?',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                        },
+                        child: Text(
+                          'Go Back',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.pink,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                          // Proceed with the operation
+                          cubit.updateMappedBarcodesByVehicle(
+                            cubit.selectedVehicle?.glnIdNumber ?? '',
+                            cubit.items,
+                            qty: cubit.quantityPicked,
+                          );
+                        },
+                        child: Text(
+                          "Proceed Anyway",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                    actionsPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  );
+                },
+              );
             } else if (isLoading) {
               return;
+            } else {
+              cubit.updateMappedBarcodesByVehicle(
+                cubit.selectedVehicle?.glnIdNumber ?? '',
+                cubit.items,
+                qty: cubit.quantityPicked,
+              );
             }
-
-            // context.read<ProductionJobOrderCubit>().updateMappedBarcodes(
-            //       locationController.text,
-            //       cubit.items,
-            //       oldOrder: context.read<ProductionJobOrderCubit>().order!,
-            //       qty: cubit.quantityPicked,
-            //     );
-
-            cubit.updateMappedBarcodes(
-              locationController.text,
-              oldOrder: context.read<ProductionJobOrderCubit>().order,
-              qty: cubit.quantityPicked,
-            );
           },
           isLoading: isLoading,
         );

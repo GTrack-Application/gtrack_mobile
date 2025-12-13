@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_cubit.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_state.dart';
-import 'package:gtrack_nartec/features/capture/view/association_internal_goodsIssue_productionJobOrder/job_order_bom_details_screen.dart';
+import 'package:gtrack_nartec/features/capture/association/shipping/views/job_order_bom_details_screen.dart';
 import 'package:gtrack_nartec/features/capture/view/association_internal_goodsIssue_productionJobOrder/widgets/empty_state_widget.dart';
 import 'package:gtrack_nartec/features/capture/view/association_internal_goodsIssue_productionJobOrder/widgets/error_state_widget.dart';
 import 'package:gtrack_nartec/features/capture/view/association_internal_goodsIssue_productionJobOrder/widgets/info_row_widget.dart';

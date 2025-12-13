@@ -1,8 +1,8 @@
 {
   "java.configuration.updateBuildConfiguration": "interactive",
   "CodeGPT.apiKey": "Anthropic",
-"dart.flutterSdkPath": "/Users/wasimzaman/.puro/envs/stable/flutter",
-    "dart.sdkPath": "/Users/wasimzaman/.puro/envs/stable/flutter/bin/cache/dart-sdk",
+"dart.flutterSdkPath": "/Users/wasimzaman/.puro/envs/3.29.2/flutter",
+    "dart.sdkPath": "/Users/wasimzaman/.puro/envs/3.29.2/flutter/bin/cache/dart-sdk",
     "workbench.colorCustomizations": {
         "activityBar.background": "#07333B",
         "titleBar.activeBackground": "#0A4753",

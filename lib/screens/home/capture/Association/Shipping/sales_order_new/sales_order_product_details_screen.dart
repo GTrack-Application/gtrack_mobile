@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gtrack_nartec/constants/app_urls.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_cubit.dart';
 import 'package:gtrack_nartec/features/capture/cubits/association_internal_goodsIssue_productionJobOrder/production_job_order_state.dart';
+import 'package:gtrack_nartec/features/capture/association/shipping/views/job_order_bom_start_screen1.dart';
 import 'package:gtrack_nartec/global/common/colors/app_colors.dart';
 import 'package:gtrack_nartec/global/common/utils/app_navigator.dart';
-import 'package:gtrack_nartec/features/capture/view/association_internal_goodsIssue_productionJobOrder/job_order_bom_start_screen1.dart';
 
 class SalesOrderProductDetailsScreen extends StatefulWidget {
   final String barcode;
